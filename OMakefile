@@ -1,0 +1,20 @@
+.PHONY: all install clean
+
+USE_OCAMLFIND = true
+NATIVE_ENABLED = true
+BYTE_ENABLED = $(not $(NATIVE_ENABLED))
+
+OCAMLFLAGS = -g -dtypes -thread -warn-error F
+OCAMLPACKS = rpc-light threads
+OCAML_OTHER_LIBS += 
+
+FILES = jsonrpc_client ovsdb_types ovsdb test
+
+UseCamlp4(rpc-light.syntax, $(FILES))
+
+OCamlProgram(ovsdb-test, $(FILES))
+
+.DEFAULT: ovsdb-test
+
+.PHONY: clean
+	rm -f *.o *.so *.a *.cmo *.cmi *.cma *.cmx *.cmxa *.annot *.opt *.omc ovsdb-test

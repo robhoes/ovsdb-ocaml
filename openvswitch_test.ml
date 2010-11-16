@@ -4,9 +4,22 @@ let _ =
 	(* set_socket_unix "/var/run/openvswitch/db.sock" *)
 	set_socket_tcp "10.80.224.133" 6632;
 	
-	let bridges = get_bridges () in
-	Printf.printf "bridges: %s" (String.concat " " bridges);
+	let show_bridge uuid =
+		let b = Bridge.get uuid in
+		Printf.printf "%s, %s\n" b.Bridge.name b.Bridge.datapath_id;
 	
-	let b = get_bridge (List.hd bridges) in
-	Printf.printf "%s, %s, %s\n" b.name b.datapath_id (String.concat " " b.ports)
+		let show_port uuid =
+			let p = Port.get uuid in
+			Printf.printf "\t%s, %s\t" p.Port.name p.Port.mac;
+			
+			let show_interface uuid =
+				let i = Interface.get uuid in
+				Printf.printf "\t\t%s, %s\t" i.Interface.name i.Interface.mac
+			in
+			List.iter show_interface p.Port.interfaces
+		in
+		List.iter show_port b.Bridge.ports
+	in
+	let bridges = Bridge.get_all () in
+	List.iter show_bridge bridges
 	

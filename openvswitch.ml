@@ -38,6 +38,7 @@ module Bridge = struct
 			datapath_id = string_of_value (List.assoc "datapath_id" row);
 			ports = match (List.assoc "ports" row) with
 				| Set l -> List.map (function Uuid p -> string_of_uuid p | _ -> "") l
+				| Atom (Uuid u) -> [string_of_uuid u]
 				| _ -> [];
 		} in
 		match result with
@@ -61,6 +62,7 @@ module Port = struct
 			name = string_of_value (List.assoc "name" row);
 			interfaces = match (List.assoc "interfaces" row) with
 				| Set l -> List.map (function Uuid p -> string_of_uuid p | _ -> "") l
+				| Atom (Uuid u) -> [string_of_uuid u]
 				| _ -> [];
 		} in
 		match result with

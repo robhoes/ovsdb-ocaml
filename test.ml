@@ -9,8 +9,8 @@ let _ =
 	Jsonrpc_client.with_rpc socket (fun rpc ->
 		let dbs = list_dbs rpc in
 		print_endline (List.hd dbs);
-		(*let schema = get_schema rpc "Open_vSwitch" in
-		print_endline schema;*)
+		let schema = get_schema rpc "Open_vSwitch" in
+		print_endline schema;
 		let result = transact rpc "Open_vSwitch" [
 			select "Bridge" [] (Some ["name"; "datapath_id"]);
 			select "Port" ["name", Eq, Atom (String "eth1")] (Some ["name"; "tag"]);

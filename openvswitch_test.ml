@@ -21,5 +21,6 @@ let _ =
 		List.iter show_port b.Bridge.ports
 	in
 	let bridges = Bridge.get_all () in
-	List.iter show_bridge bridges
+	List.iter show_bridge bridges;
 	
+	Bridge.create ~name:"testtest"

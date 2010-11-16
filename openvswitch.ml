@@ -44,6 +44,12 @@ module Bridge = struct
 		match result with
 		| Select_result [row] -> make row
 		| _ -> failwith "Unexpected response"
+		
+	let create ~name =
+		let row = [
+			"name", Atom (String name);
+		] in
+		do_call (insert "Bridge" row None)
 end
 
 module Port = struct

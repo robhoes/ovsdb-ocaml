@@ -3,7 +3,7 @@ and table = string
 and column = string
 and row = (column * value) list
 and value = Atom of atom | Set of set | Map of map
-and atom = String of string | Number of float | Boolean of bool | Uuid of uuid | Named_uuid of named_uuid
+and atom = String of string | Number of float | Integer of int64 | Boolean of bool | Uuid of uuid | Named_uuid of named_uuid
 and set = atom list
 and map = pair list
 and pair = atom * atom
@@ -122,7 +122,7 @@ and map_of_rpc __x51__ =
 			 raise (Rpc.Runtime_error (("List", __x__))))
 and set_of_rpc __x54__ =
 	match __x54__ with
-	| Rpc.Enum (Rpc.String "set" :: x) -> List.map (fun x' -> atom_of_rpc x') x
+	| Rpc.Enum ([Rpc.String "set"; Rpc.Enum x]) -> List.map (fun x' -> atom_of_rpc x') x
 	| __x__ ->
 			(if Rpc.get_debug ()
 			 then
@@ -137,6 +137,7 @@ and atom_of_rpc __x57__ =
 	| Rpc.Enum ([ Rpc.String "uuid"; _ ]) as x -> Uuid (uuid_of_rpc x)
 	| Rpc.Bool x -> Boolean x
 	| Rpc.Float x -> Number x
+	| Rpc.Int x -> Integer x
 	| Rpc.String x -> String x
 	| __x__ ->
 			(if Rpc.get_debug ()
@@ -275,6 +276,7 @@ and rpc_of_atom __x20__ =
 	| Uuid __x22__ -> rpc_of_uuid __x22__
 	| Boolean __x23__ -> Rpc.Bool __x23__
 	| Number __x24__ -> Rpc.Float __x24__
+	| Integer x -> Rpc.Int x
 	| String __x25__ -> Rpc.String __x25__
 and rpc_of_value __x26__ =
 	match __x26__ with
@@ -300,4 +302,33 @@ and rpc_of_row __x30__ =
 and rpc_of_column __x33__ = Rpc.String __x33__
 and rpc_of_table __x34__ = Rpc.String __x34__
 and rpc_of_db_name __x35__ = Rpc.String __x35__
+
+let rec string_of_db_name x = x
+and string_of_table x = x
+and string_of_column x = x
+and string_of_row x =
+	let r = String.concat ";\n\t"
+		(List.map (fun (c, v) -> Printf.sprintf "(%s, %s)" (string_of_column c) (string_of_value v)) x) in
+	Printf.sprintf "[%s]" r
+and string_of_value = function
+	| Atom x -> string_of_atom x
+	| Set x -> string_of_set x
+	| Map x -> string_of_map x
+and string_of_atom = function
+	| String x -> x
+	| Number x -> string_of_float x
+	| Integer x -> Int64.to_string x
+	| Boolean x -> string_of_bool x
+	| Uuid x -> string_of_uuid x
+	| Named_uuid x -> string_of_named_uuid x
+and string_of_set x =
+	let r = String.concat ";\n\t" (List.map (fun a -> string_of_atom a) x) in
+	Printf.sprintf "{%s}" r
+and string_of_map x =
+	let r = String.concat ";\n\t" (List.map (fun p -> string_of_pair p) x) in
+	Printf.sprintf "[%s]" r
+and string_of_pair (a, b) =
+	Printf.sprintf "(%s, %s)" (string_of_atom a) (string_of_atom b)
+and string_of_uuid x = x
+and string_of_named_uuid x = x
 

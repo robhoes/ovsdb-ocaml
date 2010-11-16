@@ -1,15 +1,12 @@
 open Ovsdb_types
 
-let d = true
+let d = false
 
 let debug s =
 	if d then
 		print_endline s
 	else
 		()
-
-type string_list = string list with rpc
-type object_list = Rpc.t list with rpc
 
 let process_response res f =
 	if res.Rpc.success then
@@ -19,10 +16,12 @@ let process_response res f =
 
 (* list_dbs call *)
 
+type list_dbs_result = db_name list with rpc
+
 let list_dbs rpc =
 	let request = Rpc.call "list_dbs" [] in
 	let response = rpc request in
-	process_response response string_list_of_rpc
+	process_response response list_dbs_result_of_rpc
 
 (* get_schema call *)
 
@@ -31,12 +30,24 @@ let get_schema rpc db_name =
 	let res = rpc req in
 	process_response res Rpc.to_string
 
+type insert_result = {uuid: uuid} with rpc
+type select_result = {rows: row list} with rpc
+type update_result = {count: int} with rpc
+
+type result =
+	| Insert_result of uuid
+	| Select_result of row list
+	| Update_result of int
+
+let string_of_result = function
+	| Insert_result x -> string_of_uuid x
+	| Select_result x -> String.concat "\n" (List.map string_of_row x)
+	| Update_result x -> string_of_int x
+
 (* insert operation *)
 
-type insert_result = {uuid: string list} with rpc
-
 let insert_handler res =
-	List.hd (List.tl (insert_result_of_rpc res).uuid)
+	Insert_result (insert_result_of_rpc res).uuid
 	
 let insert table row uuid_name =
 	let params =
@@ -59,14 +70,9 @@ let insert table row uuid_name =
 
 (* select operation *)
 
-type select_result = {rows: (string * Rpc.t) list list} with rpc
-
 let select_handler res =
-	let process_row row =
-		String.concat ", " (List.map (fun (n, v) -> n ^ " = " ^ (Rpc.to_string v)) row)
-	in
-	String.concat "\n" (List.map process_row (select_result_of_rpc res).rows)
-	
+	Select_result (select_result_of_rpc res).rows
+
 let select table where columns =
 	let params =
 		match columns with
@@ -88,10 +94,8 @@ let select table where columns =
 
 (* update operation *)
 
-type update_result = {count: int} with rpc
-
 let update_handler res =
-	string_of_int (update_result_of_rpc res).count
+	Update_result (update_result_of_rpc res).count
 	
 let update table where row =
 	let params =
@@ -105,6 +109,8 @@ let update table where row =
 	params, update_handler
 
 (* transact call *)
+
+type object_list = Rpc.t list with rpc
 
 let transact rpc db_name operations_with_handlers =
 	let operations, handlers = List.split operations_with_handlers in

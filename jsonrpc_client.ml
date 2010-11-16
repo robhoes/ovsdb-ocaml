@@ -1,4 +1,4 @@
-let d = true
+let d = false
 
 let debug s =
 	if d then

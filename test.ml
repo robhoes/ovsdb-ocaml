@@ -14,13 +14,13 @@ let _ =
 		let result = transact rpc "Open_vSwitch" [
 			select "Bridge" [] (Some ["name"; "datapath_id"]);
 			select "Port" ["name", Eq, Atom (String "eth1")] (Some ["name"; "tag"]);
-			(*insert "Bridge" ["name", Rpc.String "testbr"] None;*)
+			(* insert "Bridge" ["name", Atom (String "testbr")] None; *)
 			update "Bridge"
 				["name", Eq, Atom (String "testbr")]
 				["other_config", Map [String "hwaddr", String "xx:xx"]];
 			select "Open_vSwitch" [] None;
 		] in
-		List.iter print_endline result;
+		List.iter (fun r -> print_endline (string_of_result r)) result;
 		()
 	)
 

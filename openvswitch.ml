@@ -12,7 +12,7 @@ let set_socket_tcp ip port =
 
 let do_call c =
 	match !socket with
-	| Some s -> Jsonrpc_client.with_rpc s (fun rpc -> List.hd (transact rpc db_name [c]))
+	| Some s -> List.hd (Jsonrpc_client.with_rpc s (fun rpc -> transact rpc db_name [c]))
 	| None -> failwith "No socket configured"
 
 module Bridge = struct
@@ -49,7 +49,13 @@ module Bridge = struct
 		let row = [
 			"name", Atom (String name);
 		] in
-		do_call (insert "Bridge" row None)
+		let result = do_call (insert "Bridge" row None) in
+		let uuid = match result with
+			| Insert_result u -> u
+			| _ -> failwith "Unexpected response"
+		in
+		let (_ : result) = do_call (mutate db_name [] ["bridges", Insert, Atom (Uuid uuid)]) in
+		string_of_uuid uuid
 end
 
 module Port = struct

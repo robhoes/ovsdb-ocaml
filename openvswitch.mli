@@ -13,7 +13,7 @@ module Bridge :
     }
     val get_all : unit -> Ovsdb_types.uuid list
     val get : Ovsdb_types.uuid -> t
-    val create : name:string -> Ovsdb.result
+    val create : name:string -> Ovsdb_types.uuid
   end
 module Port :
   sig

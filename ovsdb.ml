@@ -32,8 +32,8 @@ let get_schema rpc db_name =
 
 type insert_result = {uuid: uuid} with rpc
 type select_result = {rows: row list} with rpc
-type update_result = {update_count: int} with rpc
-type mutate_result = {mutate_count: int} with rpc
+type update_result = {count: int} with rpc
+type mutate_result = update_result with rpc
 
 type result =
 	| Insert_result of uuid
@@ -98,7 +98,7 @@ let select table where columns =
 (* update operation *)
 
 let update_handler res =
-	Update_result (update_result_of_rpc res).update_count
+	Update_result (update_result_of_rpc res).count
 	
 let update table where row =
 	let params =
@@ -114,12 +114,12 @@ let update table where row =
 (* mutate operation *)
 
 let mutate_handler res =
-	Mutate_result (mutate_result_of_rpc res).mutate_count
+	Mutate_result (mutate_result_of_rpc res).count
 	
 let mutate table where mutations =
 	let params =
 		Rpc.Dict [
-			"op", Rpc.String "update";
+			"op", Rpc.String "mutate";
 			"table", rpc_of_table table;
 			"where", Rpc.Enum (List.map (fun w -> rpc_of_condition w) where);
 			"mutations", Rpc.Enum (List.map (fun w -> rpc_of_mutation w) mutations);

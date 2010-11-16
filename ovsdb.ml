@@ -34,18 +34,21 @@ type insert_result = {uuid: uuid} with rpc
 type select_result = {rows: row list} with rpc
 type update_result = {count: int} with rpc
 type mutate_result = update_result with rpc
+type delete_result = update_result with rpc
 
 type result =
 	| Insert_result of uuid
 	| Select_result of row list
 	| Update_result of int
 	| Mutate_result of int
+	| Delete_result of int
 
 let string_of_result = function
 	| Insert_result x -> string_of_uuid x
 	| Select_result x -> String.concat "\n" (List.map string_of_row x)
 	| Update_result x -> string_of_int x
 	| Mutate_result x -> string_of_int x
+	| Delete_result x -> string_of_int x
 
 (* insert operation *)
 
@@ -126,6 +129,21 @@ let mutate table where mutations =
 		]
 	in
 	params, mutate_handler
+
+(* delete operation *)
+
+let delete_handler res =
+	Mutate_result (delete_result_of_rpc res).count
+	
+let delete table where =
+	let params =
+		Rpc.Dict [
+			"op", Rpc.String "delete";
+			"table", rpc_of_table table;
+			"where", Rpc.Enum (List.map (fun w -> rpc_of_condition w) where);
+		]
+	in
+	params, delete_handler
 
 (* transact call *)
 

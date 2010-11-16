@@ -23,5 +23,6 @@ let _ =
 	let bridges = Bridge.get_all () in
 	List.iter show_bridge bridges;
 	
-	(* Bridge.create ~name:"testtest"; *)
+	(* let (_ : string) = Bridge.create ~name:"testtest" in *)
 	()
+

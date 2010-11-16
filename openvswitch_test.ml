@@ -10,11 +10,11 @@ let _ =
 	
 		let show_port uuid =
 			let p = Port.get uuid in
-			Printf.printf "\t%s, %s\t" p.Port.name p.Port.mac;
+			Printf.printf "\t%s, %s\n" p.Port.name p.Port.mac;
 			
 			let show_interface uuid =
 				let i = Interface.get uuid in
-				Printf.printf "\t\t%s, %s\t" i.Interface.name i.Interface.mac
+				Printf.printf "\t\t%s, %s\n" i.Interface.name i.Interface.mac
 			in
 			List.iter show_interface p.Port.interfaces
 		in

@@ -59,13 +59,17 @@ let c = Condition.create ()
 let m = Mutex.create ()
 
 let rec receive fin () =
-	let obj = input_json_object fin in
-	debug ("Received:\n\t" ^ obj);
-	Mutex.lock m;
-	received := Some (Jsonrpc.response_of_string obj);
-	Condition.signal c;
-	Mutex.unlock m;
-	receive fin ()
+	try
+		let obj = input_json_object fin in
+		debug ("Received:\n\t" ^ obj);
+		Mutex.lock m;
+		received := Some (Jsonrpc.response_of_string obj);
+		Condition.signal c;
+		Mutex.unlock m;
+		receive fin ()
+	with _ ->
+		(* end of file... stop thread *)
+		()
 
 let with_connection socket f =
 	let fin, fout = Unix.open_connection socket in

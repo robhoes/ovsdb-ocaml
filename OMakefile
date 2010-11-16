@@ -8,13 +8,14 @@ OCAMLFLAGS = -g -dtypes -thread -warn-error F
 OCAMLPACKS = rpc-light threads
 OCAML_OTHER_LIBS += 
 
-FILES = jsonrpc_client ovsdb_types ovsdb test
+FILES = jsonrpc_client ovsdb_types ovsdb
 
 UseCamlp4(rpc-light.syntax, $(FILES))
 
-OCamlProgram(ovsdb-test, $(FILES))
+OCamlProgram(ovsdb-test, $(FILES) test)
+OCamlProgram(openvswitch-test, $(FILES) openvswitch openvswitch_test)
 
-.DEFAULT: ovsdb-test
+.DEFAULT: ovsdb-test openvswitch-test
 
 .PHONY: clean
 	rm -f *.o *.so *.a *.cmo *.cmi *.cma *.cmx *.cmxa *.annot *.opt *.omc ovsdb-test

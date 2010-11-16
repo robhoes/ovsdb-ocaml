@@ -4,7 +4,10 @@ val list_dbs : (Rpc.call -> Rpc.response) -> string list
 
 val get_schema : (Rpc.call -> Rpc.response) -> string -> string
 
-type result
+type result =
+	| Insert_result of uuid
+	| Select_result of row list
+	| Update_result of int
 
 val string_of_result: result -> string
 

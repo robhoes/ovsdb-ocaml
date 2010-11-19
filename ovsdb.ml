@@ -53,7 +53,9 @@ let string_of_result = function
 (* insert operation *)
 
 let insert_handler res =
-	Insert_result (insert_result_of_rpc res).uuid
+	let result = Insert_result (insert_result_of_rpc res).uuid in
+	debug (string_of_result result);
+	result
 	
 let insert table row uuid_name =
 	let params =
@@ -77,7 +79,9 @@ let insert table row uuid_name =
 (* select operation *)
 
 let select_handler res =
-	Select_result (select_result_of_rpc res).rows
+	let result = Select_result (select_result_of_rpc res).rows in
+	debug (string_of_result result);
+	result
 
 let select table where columns =
 	let params =
@@ -101,7 +105,9 @@ let select table where columns =
 (* update operation *)
 
 let update_handler res =
-	Update_result (update_result_of_rpc res).count
+	let result = Update_result (update_result_of_rpc res).count in
+	debug (string_of_result result);
+	result
 	
 let update table where row =
 	let params =
@@ -117,7 +123,9 @@ let update table where row =
 (* mutate operation *)
 
 let mutate_handler res =
-	Mutate_result (mutate_result_of_rpc res).count
+	let result = Mutate_result (mutate_result_of_rpc res).count in
+	debug (string_of_result result);
+	result
 	
 let mutate table where mutations =
 	let params =
@@ -133,7 +141,9 @@ let mutate table where mutations =
 (* delete operation *)
 
 let delete_handler res =
-	Mutate_result (delete_result_of_rpc res).count
+	let result = Delete_result (delete_result_of_rpc res).count in
+	debug (string_of_result result);
+	result
 	
 let delete table where =
 	let params =

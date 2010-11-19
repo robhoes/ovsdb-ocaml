@@ -10,10 +10,13 @@ let set_socket_unix path =
 let set_socket_tcp ip port =
 	socket := Some (Unix.ADDR_INET ((Unix.inet_addr_of_string ip), port))
 
-let do_call c =
+let do_calls l =
 	match !socket with
-	| Some s -> List.hd (Jsonrpc_client.with_rpc s (fun rpc -> transact rpc db_name [c]))
+	| Some s -> Jsonrpc_client.with_rpc s (fun rpc -> transact rpc db_name l)
 	| None -> failwith "No socket configured"
+
+let do_call c =
+	List.hd (do_calls [c])
 
 module Bridge = struct
 	type t = {
@@ -44,7 +47,7 @@ module Bridge = struct
 		match result with
 		| Select_result [row] -> make row
 		| _ -> failwith "Unexpected response"
-		
+
 	let create ~name =
 		let row = [
 			"name", Atom (String name);
@@ -56,6 +59,15 @@ module Bridge = struct
 		in
 		let (_ : result) = do_call (mutate db_name [] ["bridges", Insert, Atom (Uuid uuid)]) in
 		string_of_uuid uuid
+
+	let destroy uuid =
+		let results = do_calls [
+			mutate db_name [] ["bridges", Delete, Atom (Uuid uuid)];
+			delete "Bridge" ["_uuid", Eq, Atom (Uuid uuid)]
+		] in
+		match results with
+		| [_; Delete_result count] -> count
+		| _ -> failwith "Unexpected response"
 end
 
 module Port = struct

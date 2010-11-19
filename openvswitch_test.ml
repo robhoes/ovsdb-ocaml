@@ -6,7 +6,7 @@ let _ =
 	
 	let show_bridge uuid =
 		let b = Bridge.get uuid in
-		Printf.printf "%s, %s\n" b.Bridge.name b.Bridge.datapath_id;
+		Printf.printf "%s, %s\n" b.Bridge.name uuid;
 	
 		let show_port uuid =
 			let p = Port.get uuid in
@@ -20,9 +20,23 @@ let _ =
 		in
 		List.iter show_port b.Bridge.ports
 	in
+	print_endline "Current list of bridges";
 	let bridges = Bridge.get_all () in
 	List.iter show_bridge bridges;
+	print_endline "====";
 	
-	(* let (_ : string) = Bridge.create ~name:"testtest" in *)
+	let uuid = Bridge.create ~name:"testtest" in
+	print_endline ("Created bridge " ^ uuid);
+	
+	let bridges = Bridge.get_all () in
+	List.iter show_bridge bridges;
+	print_endline "====";
+	
+	let n = Bridge.destroy uuid in
+	print_endline ("Deleted " ^ (string_of_int n) ^ " bridge ");
+	
+	let bridges = Bridge.get_all () in
+	List.iter show_bridge bridges;
+	print_endline "====";
 	()
 

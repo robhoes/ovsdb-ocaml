@@ -29,6 +29,14 @@ module Port :
   end
 module Interface :
   sig
-    type t = { uuid : string; mac : string; name : string; }
+    type iftype =
+        System
+      | Internal
+      | Tap
+      | Gre of string * (string * string) list
+      | Capwap of string * (string * string) list
+      | Patch of string
+    type t = { uuid : string; mac : string; name : string; ty : iftype; }
     val get : Ovsdb_types.uuid -> t
+    val create : name:string -> ?ty:iftype -> Ovsdb_types.uuid
   end

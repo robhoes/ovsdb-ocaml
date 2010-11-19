@@ -38,5 +38,8 @@ let _ =
 	let bridges = Bridge.get_all () in
 	List.iter show_bridge bridges;
 	print_endline "====";
+	
+	let interface = Interface.create ~name:"newif" ~ty:(Interface.Gre("10.80.3.142", [])) in
+	print_endline interface;
 	()
 

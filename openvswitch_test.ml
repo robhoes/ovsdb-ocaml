@@ -25,14 +25,14 @@ let _ =
 	List.iter show_bridge bridges;
 	print_endline "====";
 	
-	let uuid = Bridge.create ~name:"testtest" in
-	print_endline ("Created bridge " ^ uuid);
+	let bridge = Bridge.create ~name:"testtest" in
+	print_endline ("Created bridge " ^ bridge);
 	
 	let bridges = Bridge.get_all () in
 	List.iter show_bridge bridges;
 	print_endline "====";
 	
-	let n = Bridge.destroy uuid in
+	let n = Bridge.destroy bridge in
 	print_endline ("Deleted " ^ (string_of_int n) ^ " bridge ");
 	
 	let bridges = Bridge.get_all () in
@@ -40,6 +40,8 @@ let _ =
 	print_endline "====";
 	
 	let interface = Interface.create ~name:"newif" ~ty:(Interface.Gre("10.80.3.142", [])) in
-	print_endline interface;
+	print_endline ("Created interface: " ^ interface);
+	let n = Interface.destroy interface in
+	print_endline ("Deleted " ^ (string_of_int n) ^ " interface ");
 	()
 

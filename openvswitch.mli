@@ -38,5 +38,6 @@ module Interface :
       | Patch of string
     type t = { uuid : string; mac : string; name : string; ty : iftype; }
     val get : Ovsdb_types.uuid -> t
-    val create : name:string -> ?ty:iftype -> Ovsdb_types.uuid
+    val create : ?ty:iftype -> name:string -> Ovsdb_types.uuid
+    val destroy : Ovsdb_types.uuid -> int
   end

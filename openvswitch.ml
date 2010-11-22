@@ -162,20 +162,32 @@ module Interface = struct
 			name = string_of_value (List.assoc "name" row);
 			ty = match List.assoc "type" row with
 				| Atom (String "") | Atom (String "system") -> System
+				| Atom (String "internal") -> Internal
+				| Atom (String "tap") -> Tap
 				| Atom (String "gre") -> Gre ("", [])
+				| Atom (String "capwap") -> Capwap ("", [])
+				| Atom (String "patch") -> Patch ""
+				| _ -> failwith "Illegal type"
 		} in
 		match result with
 		| Select_result [row] -> make row
 		| _ -> failwith "Unexpected response"
 
-	let create ~name ?ty =
+	let create ?ty ~name =
 		let row = [
 				"name", Atom (String name);
 			] @
 			match ty with
 			| None -> []
+			| Some System -> ["type", Atom (String "system")]
+			| Some Internal -> ["type", Atom (String "internal")]
+			| Some Tap -> ["type", Atom (String "tap")]
 			| Some (Gre (remote_ip, options)) ->
 				["type", Atom (String "gre"); "options", Map [String "remote_ip", String remote_ip]]
+			| Some (Capwap (remote_ip, options)) ->
+				["type", Atom (String "capwap"); "options", Map [String "remote_ip", String remote_ip]]
+			| Some (Patch peer) ->
+				["type", Atom (String "patch"); "options", Map [String "peer", String peer]]
 		in
 		let result = do_call (insert "Interface" row None) in
 		let uuid = match result with
@@ -183,5 +195,14 @@ module Interface = struct
 			| _ -> failwith "Unexpected response"
 		in
 		string_of_uuid uuid
+
+	let destroy uuid =
+		let results = do_calls [
+			mutate "Port" [] ["interfaces", Delete, Atom (Uuid uuid)];
+			delete "Interface" ["_uuid", Eq, Atom (Uuid uuid)]
+		] in
+		match results with
+		| [_; Delete_result count] -> count
+		| _ -> failwith "Unexpected response"
 end
 

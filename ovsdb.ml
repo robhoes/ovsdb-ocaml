@@ -42,6 +42,7 @@ type result =
 	| Update_result of int
 	| Mutate_result of int
 	| Delete_result of int
+	| Commit_result
 
 let string_of_result = function
 	| Insert_result x -> string_of_uuid x
@@ -49,6 +50,7 @@ let string_of_result = function
 	| Update_result x -> string_of_int x
 	| Mutate_result x -> string_of_int x
 	| Delete_result x -> string_of_int x
+	| Commit_result -> ""
 
 (* insert operation *)
 
@@ -154,6 +156,20 @@ let delete table where =
 		]
 	in
 	params, delete_handler
+
+(* commit operation *)
+
+let commit_handler res =
+	Commit_result
+
+let commit durable =
+	let params =
+		Rpc.Dict [
+			"op", Rpc.String "commit";
+			"durable", Rpc.Bool durable;
+		]
+	in
+	params, commit_handler
 
 (* transact call *)
 

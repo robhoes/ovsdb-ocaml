@@ -10,6 +10,7 @@ type result =
 	| Update_result of int
 	| Mutate_result of int
 	| Delete_result of int
+	| Commit_result
 
 val string_of_result: result -> string
 
@@ -18,6 +19,7 @@ val select: table -> condition list -> column list option -> Rpc.t * (Rpc.t -> r
 val update: table -> condition list -> row -> Rpc.t * (Rpc.t -> result)
 val mutate: table -> condition list -> mutation list -> Rpc.t * (Rpc.t -> result)
 val delete: table -> condition list -> Rpc.t * (Rpc.t -> result)
+val commit: bool -> Rpc.t * (Rpc.t -> result)
 
 val transact :
 	(Rpc.call -> Rpc.response) ->

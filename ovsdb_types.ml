@@ -269,7 +269,10 @@ and rpc_of_pair __x13__ =
 and rpc_of_map __x16__ =
 	Rpc.Enum ([Rpc.String "map"; Rpc.Enum (List.map (fun __x17__ -> rpc_of_pair __x17__) __x16__)])
 and rpc_of_set __x18__ =
-	Rpc.Enum (Rpc.String "set" :: List.map (fun __x19__ -> rpc_of_atom __x19__) __x18__)
+	if List.length __x18__ <> 1 then
+		Rpc.Enum (Rpc.String "set" :: List.map (fun __x19__ -> rpc_of_atom __x19__) __x18__)
+	else
+		rpc_of_atom (List.hd __x18__)
 and rpc_of_atom __x20__ =
 	match __x20__ with
 	| Named_uuid __x21__ -> rpc_of_named_uuid __x21__

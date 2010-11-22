@@ -1,0 +1,11 @@
+*.o
+*.cmo
+*.cmi
+*.cmx
+*.cmxa
+*.annot
+*.omc
+*.opt
+.omake*
+openvswitch-test
+ovsdb-test

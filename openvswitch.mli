@@ -74,6 +74,7 @@ module Port :
 		val create : ?bridge:string ->
 			?interfaces:string list -> string -> string
 		val destroy : string -> int
+		val add_interface : string -> string -> unit
 	end
 module Bridge :
 	sig
@@ -87,4 +88,5 @@ module Bridge :
 		val get : string -> t
 		val create : string -> string
 		val destroy : string -> int
+		val add_port : string -> string -> unit
 	end

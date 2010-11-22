@@ -162,6 +162,10 @@ module Port = struct
 		match results with
 		| [_; Delete_result count] -> count
 		| _ -> failwith "Unexpected response"
+
+	let add_interface uuid interface =
+		let (_ : result) = do_call (mutate "Port" ["_uuid", Eq, Atom (Uuid uuid)] ["interfaces", Insert, Atom (Uuid interface)]) in
+		()
 end
 
 module Bridge = struct
@@ -216,4 +220,8 @@ module Bridge = struct
 		match results with
 		| [_; Delete_result count] -> count
 		| _ -> failwith "Unexpected response"
+
+	let add_port uuid port =
+		let (_ : result) = do_call (mutate "Bridge" ["_uuid", Eq, Atom (Uuid uuid)] ["ports", Insert, Atom (Uuid port)]) in
+		()
 end

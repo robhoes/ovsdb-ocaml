@@ -40,6 +40,27 @@ open build/LaTeX
 DefineCommandVars()
 
 #
+# The documentation generator
+#
+OCAMLDOC = ocamldoc
+
+#
+# Generation of documentation from .ml or .mli files
+#
+OCamlDoc(name, modules, type) =
+    private.CMIFILES = $(addsuffix .cmi, $(modules))
+    .PHONY: doc
+    dir = $(ROOT)/doc
+    doc: $(CMIFILES)
+        python $(ROOT)/doc/doc.py $(dir) $(name) $(type) "$(modules)" "$(OCAMLINCLUDES)" "$(OCAMLPACKS)" "$(OCAML_LIBS)"
+
+OCamlDocProgram(name, modules) =
+	OCamlDoc($(name), $(modules), "program")
+	
+OCamlDocLibrary(name, modules) =
+	OCamlDoc($(name), $(modules), "library")
+
+#
 # Use Camlp4
 #
 UseCamlp4(packs, files) =

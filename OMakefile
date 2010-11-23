@@ -14,6 +14,7 @@ UseCamlp4(rpc-light.syntax, $(FILES))
 
 OCamlProgram(ovsdb-test, $(FILES) test)
 OCamlProgram(openvswitch-test, $(FILES) openvswitch openvswitch_test)
+OCamlDocProgram(openvswitch-test, $(FILES) openvswitch openvswitch_test)
 
 .DEFAULT: ovsdb-test openvswitch-test
 

@@ -60,6 +60,7 @@ module Interface :
 		val get : string -> t
 		val create : ?port:string -> ?ty:iftype -> string -> string
 		val destroy : string -> int
+		val update: string -> t -> int
 	end
 module Port :
 	sig

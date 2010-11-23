@@ -60,22 +60,24 @@ module Interface = struct
 		| Select_result [row] -> make row
 		| _ -> failwith "Unexpected response"
 
+	let make_row ?ty name =
+		[
+			"name", Atom (String name);
+		] @
+		match ty with
+		| None -> []
+		| Some System -> ["type", Atom (String "system")]
+		| Some Internal -> ["type", Atom (String "internal")]
+		| Some Tap -> ["type", Atom (String "tap")]
+		| Some (Gre (remote_ip, options)) ->
+			["type", Atom (String "gre"); "options", Map [String "remote_ip", String remote_ip]]
+		| Some (Capwap (remote_ip, options)) ->
+			["type", Atom (String "capwap"); "options", Map [String "remote_ip", String remote_ip]]
+		| Some (Patch peer) ->
+			["type", Atom (String "patch"); "options", Map [String "peer", String peer]]
+
 	let create ?port ?ty name =
-		let row = [
-				"name", Atom (String name);
-			] @
-			match ty with
-			| None -> []
-			| Some System -> ["type", Atom (String "system")]
-			| Some Internal -> ["type", Atom (String "internal")]
-			| Some Tap -> ["type", Atom (String "tap")]
-			| Some (Gre (remote_ip, options)) ->
-				["type", Atom (String "gre"); "options", Map [String "remote_ip", String remote_ip]]
-			| Some (Capwap (remote_ip, options)) ->
-				["type", Atom (String "capwap"); "options", Map [String "remote_ip", String remote_ip]]
-			| Some (Patch peer) ->
-				["type", Atom (String "patch"); "options", Map [String "peer", String peer]]
-		in
+		let row = make_row ?ty name in
 		let result = do_call (insert "Interface" row None) in
 		let uuid = match result with
 			| Insert_result u -> u
@@ -96,6 +98,13 @@ module Interface = struct
 		] in
 		match results with
 		| [_; Delete_result count] -> count
+		| _ -> failwith "Unexpected response"
+
+	let update uuid interface =
+		let row = make_row ~ty:interface.ty interface.name in
+		let result = do_call (update "Interface" ["_uuid", Eq, Atom (Uuid uuid)] row) in
+		match result with
+		| Update_result count -> count
 		| _ -> failwith "Unexpected response"
 end
 

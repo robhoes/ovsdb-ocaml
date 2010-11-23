@@ -32,6 +32,10 @@ let _ =
 	let interface = Interface.create ~port ~ty:(Interface.Gre("10.80.3.142", [])) "newif" in
 	print_endline ("Created interface: " ^ interface);
 	
+	let interface_rec = Interface.get interface in
+	let n = Interface.update interface {interface_rec with Interface.name = "newerif"} in
+	print_endline ("Modified interface: " ^ interface);
+	
 	let bridges = Bridge.get_all () in
 	List.iter show_bridge bridges;
 	print_endline "====";

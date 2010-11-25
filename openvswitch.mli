@@ -86,7 +86,7 @@ module Bridge :
 			ports : string list;
 		}
 		val get_all : unit -> string list
-		val get : string -> t
+		val get : ?name:string -> ?uuid:string -> unit -> t
 		val create : string -> string
 		val destroy : string -> int
 		val add_port : string -> string -> unit

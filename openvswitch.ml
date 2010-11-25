@@ -70,9 +70,17 @@ module Interface = struct
 		| Some Internal -> ["type", Atom (String "internal")]
 		| Some Tap -> ["type", Atom (String "tap")]
 		| Some (Gre (remote_ip, options)) ->
-			["type", Atom (String "gre"); "options", Map [String "remote_ip", String remote_ip]]
+			[
+				"type", Atom (String "gre");
+				"options", Map ((String "remote_ip", String remote_ip) ::
+					(List.map (fun (k, v) -> String k, String v) options))
+			]
 		| Some (Capwap (remote_ip, options)) ->
-			["type", Atom (String "capwap"); "options", Map [String "remote_ip", String remote_ip]]
+			[
+				"type", Atom (String "capwap");
+				"options", Map ((String "remote_ip", String remote_ip) ::
+					(List.map (fun (k, v) -> String k, String v) options))
+			]
 		| Some (Patch peer) ->
 			["type", Atom (String "patch"); "options", Map [String "peer", String peer]]
 
@@ -192,10 +200,19 @@ module Bridge = struct
 			List.map (function Uuid p -> string_of_uuid p | _ -> "") l
 		| _ -> failwith "Unexpected response"
 
-	let get uuid =
-		let result = do_call (select "Bridge" ["_uuid", Eq, Atom (Uuid uuid)] None) in
+	let get ?name ?uuid () =
+		let query =
+			(match uuid with
+			| Some u -> ["_uuid", Eq, Atom (Uuid u)]
+			| None -> []) @
+			(match name with
+			| Some n -> ["name", Eq, Atom (String n)]
+			| None -> []) @
+			[]
+		in
+		let result = do_call (select "Bridge" query None) in
 		let make row = {
-			uuid = uuid;
+			uuid = string_of_value (List.assoc "_uuid" row);
 			name = string_of_value (List.assoc "name" row);
 			datapath_id = string_of_value (List.assoc "datapath_id" row);
 			ports = match (List.assoc "ports" row) with
@@ -220,7 +237,7 @@ module Bridge = struct
 		string_of_uuid uuid
 
 	let destroy uuid =
-		let bridge = get uuid in
+		let bridge = get ~uuid () in
 		let (_ : int list) = List.map Port.destroy bridge.ports in
 		let results = do_calls [
 			mutate db_name [] ["bridges", Delete, Atom (Uuid uuid)];

@@ -14,7 +14,7 @@ let _ =
 		List.iter show_interface p.Port.interfaces
 	in
 	let show_bridge uuid =
-		let b = Bridge.get uuid in
+		let b = Bridge.get ~uuid () in
 		Printf.printf "%s, %s\n" b.Bridge.name uuid;
 		List.iter show_port b.Bridge.ports
 	in
@@ -33,7 +33,7 @@ let _ =
 	print_endline ("Created interface: " ^ interface);
 	
 	let interface_rec = Interface.get interface in
-	let n = Interface.update interface {interface_rec with Interface.name = "newerif"} in
+	let _ = Interface.update interface {interface_rec with Interface.name = "newerif"} in
 	print_endline ("Modified interface: " ^ interface);
 	
 	let bridges = Bridge.get_all () in
